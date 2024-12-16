@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { type Product, productService } from '../service/ProductService'
-import { useCartStore } from '../stores/cart'
-import CartModal from './CartModal.vue'
+import Dialog from 'primevue/dialog'
+import Button from 'primevue/button'
 
-const cartStore = useCartStore()
+
+
 
 const products = ref<Product[]>([])
 const loading = ref(false)
@@ -12,6 +13,25 @@ const error = ref<string | null>(null)
 const currentPage = ref(1)
 const totalPages = ref(0)
 const isCartModalOpen = ref(false)
+const displayConfirmationModal = ref(false)
+const productToDelete = ref<number | null>(null)
+
+const confirmDelete = (productId: number) => {
+          productToDelete.value = productId
+          displayConfirmationModal.value = true
+}
+
+const handleDeleteProduct = async () => {
+  if (productToDelete.value === null) return
+
+  try {
+    await productService.deleteProduct(productToDelete.value)
+    displayConfirmationModal.value = false
+    loadProducts()
+  } catch (err) {
+    console.error(err)
+  }
+}
 
 const loadProducts = async (page = 1) => {
   try {
@@ -29,33 +49,18 @@ const loadProducts = async (page = 1) => {
   }
 }
 
-const addToCart = (product: Product) => {
-  cartStore.addToCart(product)
-}
-
-const openCartModal = () => {
-  isCartModalOpen.value = true
-}
-
-const closeCartModal = () => {
-  isCartModalOpen.value = false
-}
-
 onMounted(() => {
   loadProducts()
 })
 </script>
 
 <template>
-  <CartModal
-      :is-open="isCartModalOpen"
-      @close="closeCartModal"
-    />
   <div class="container mx-auto p-4">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold green">Nos Produits</h1>
+      <h1 class="text-3xl font-bold green">gestion des produits</h1>
   </div>
 
+  <a href="/admin/gestion-produits/add"><button >add product</button></a>
 
   </div>
     <div v-if="loading" class="text-center">
@@ -82,10 +87,16 @@ onMounted(() => {
           <span class="text-sm text-gray-500">Stock: {{ product.stock }}</span>
         </div>
         <button
-          @click="addToCart(product)"
+          @click="confirmDelete(product.id)"
           class="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
         >
-          Ajouter au panier
+          Delete
+        </button>
+
+        <button
+          class="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+        >
+          edite
         </button>
       </div>
     </div>
@@ -104,5 +115,31 @@ onMounted(() => {
         {{ page }}
       </button>
     </div>
+    <Dialog
+      v-model:visible="displayConfirmationModal"
+      header="Confirmation de suppression"
+      modal
+      :style="{ width: '450px' }"
+    >
+      <div class="confirmation-content">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+        <span>Êtes-vous sûr de vouloir supprimer ce produit ?</span>
+      </div>
+      <template #footer>
+        <Button
+          label="Non"
+          icon="pi pi-times"
+          @click="displayConfirmationModal = false"
+          text
+        />
+        <Button
+          label="Oui"
+          icon="pi pi-check"
+          @click="handleDeleteProduct"
+          severity="danger"
+          text
+        />
+      </template>
+    </Dialog>
 
 </template>

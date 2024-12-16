@@ -15,6 +15,11 @@ const router = createRouter({
       name: 'gestion-produits',
       component: () => import('../views/admin/HomeView.vue'),
     },
+    {
+      path: '/admin/gestion-produits/add',
+      name: 'add-product',
+      component: () => import('../views/admin/RegisterProduct.vue'),
+    },
 
   ],
 })
