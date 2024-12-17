@@ -76,7 +76,8 @@ onMounted(() => {
         class="border rounded-lg p-4 shadow-md"
       >
         <img
-          :src="'https://primefaces.org/cdn/primevue/images/product/bracelet.jpg'"
+          v-if="product.image"
+          :src="product.image"
           :alt="product.name"
           class="w-full h-48 object-cover mb-4 rounded"
         />

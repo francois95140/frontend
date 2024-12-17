@@ -8,39 +8,28 @@ import Dialog from 'primevue/dialog';
 import { computed, ref } from 'vue';
 
 import axios from 'axios';
+import { productService } from '@/service/ProductService';
 
 const name = ref<string>('')
+const image = ref<string>('')
 const visible = ref(false);
 const description = ref<string>('')
 const price = ref<number>()
 const stock = ref<number>()
 
-const isRegisterDisabled = computed (() => name.value.length > 0 && description.value.length > 0 && price.value > 0 )
+const isRegisterDisabled = computed (() => name.value.length > 0 && description.value.length > 0 && price.value > 0 && image.value.length > 0 && stock.value > 0)
 
 const HandleRegistrer = async () => {
   try
   {
-     axios.post('http://localhost:8000/api/products', {
-      name: name.value,
-      description: description.value,
-      price: price.value,
-      stock: stock.value
-    })
-
+    await productService.createProduct({name: name.value, image: image.value, description: description.value, price: price.value, stock: stock.value})
     visible.value = true
-
-
   }catch (error) {
     console.log(error)
   }
 
 }
-
 </script>
-
-
-
-
 
 <template>
   <div class="flex flex-column row-gap-5">
@@ -80,7 +69,15 @@ const HandleRegistrer = async () => {
         <label for="stock">Stock</label>
       </FloatLabel>
     </InputGroup>
-
+    <InputGroup>
+        <InputGroupAddon>
+            <i class="pi pi-link"></i>
+        </InputGroupAddon>
+        <FloatLabel>
+        <InputText type="url" id="image" v-model="image" />
+        <label for="image">Image link</label>
+      </FloatLabel>
+    </InputGroup>
     <Dialog v-model:visible="visible" modal header="Success" :style="{ width: '50vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <p class="m-0">
     {{ name }} has been registered
