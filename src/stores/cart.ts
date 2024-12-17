@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { type Product } from '../service/ProductService'
+import { type Product } from '../services/ProductService'
 
 export interface CartItem extends Product {
   quantity: number
@@ -7,19 +7,19 @@ export interface CartItem extends Product {
 
 export const useCartStore = defineStore('cart', {
   state: () => ({
-    items: [] as CartItem[]
+    items: [] as CartItem[],
   }),
   getters: {
     totalItems(): number {
       return this.items.reduce((total, item) => total + item.quantity, 0)
     },
     totalPrice(): number {
-      return this.items.reduce((total, item) => total + (item.price * item.quantity), 0)
-    }
+      return this.items.reduce((total, item) => total + item.price * item.quantity, 0)
+    },
   },
   actions: {
     addToCart(product: Product) {
-      const existingItem = this.items.find(item => item.id === product.id)
+      const existingItem = this.items.find((item) => item.id === product.id)
 
       if (existingItem) {
         existingItem.quantity++
@@ -28,7 +28,7 @@ export const useCartStore = defineStore('cart', {
       }
     },
     removeFromCart(productId: number) {
-      const index = this.items.findIndex(item => item.id === productId)
+      const index = this.items.findIndex((item) => item.id === productId)
       if (index !== -1) {
         if (this.items[index].quantity > 1) {
           this.items[index].quantity--
@@ -39,10 +39,10 @@ export const useCartStore = defineStore('cart', {
     },
     clearCart() {
       this.items = []
-    }
+    },
   },
   persist: {
     storage: localStorage,
-    paths: ['items']
-  }
+    paths: ['items'],
+  },
 })

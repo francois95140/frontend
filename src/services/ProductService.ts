@@ -1,8 +1,7 @@
-// src/services/ProductService.ts
 import axios, { type AxiosResponse } from 'axios';
 
-// Interface pour définir la structure d'un produit
 export interface Product {
+  product: Product | { id?: number | undefined; name: string; description: string; price: number; stock: number; image?: string | undefined; } | null;
   id?: number;
   name: string;
   description: string;
@@ -11,7 +10,6 @@ export interface Product {
   image?: string;
 }
 
-// Interface pour la réponse de pagination
 export interface PaginatedResponse {
   data: Product[];
   current_page: number;
@@ -59,7 +57,7 @@ class ProductService {
 
   async updateProduct(id: number, productData: Partial<Product>): Promise<Product> {
     try {
-      const response: AxiosResponse<Product> = await axios.put(
+      const response: AxiosResponse<Product> = await axios.patch(
         `${this.baseUrl}/${id}`,
         productData
       );
