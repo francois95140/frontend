@@ -3,22 +3,22 @@ import { ref, onMounted } from 'vue'
 import { type Product, productService } from '../service/ProductService'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
+import { useRouter } from 'vue-router'
 
 
-
+const router = useRouter()
 
 const products = ref<Product[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const currentPage = ref(1)
 const totalPages = ref(0)
-const isCartModalOpen = ref(false)
 const displayConfirmationModal = ref(false)
 const productToDelete = ref<number | null>(null)
 
 const confirmDelete = (productId: number) => {
-          productToDelete.value = productId
-          displayConfirmationModal.value = true
+  productToDelete.value = productId
+  displayConfirmationModal.value = true
 }
 
 const handleDeleteProduct = async () => {
@@ -47,6 +47,12 @@ const loadProducts = async (page = 1) => {
   } finally {
     loading.value = false
   }
+}
+const navigateToEditProduct = (productId: number) => {
+  router.push({
+    name: 'edit-product',
+    params: { id: productId }
+  })
 }
 
 onMounted(() => {
@@ -95,6 +101,7 @@ onMounted(() => {
         </button>
 
         <button
+          @click="navigateToEditProduct(product.id)"
           class="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
         >
           edite

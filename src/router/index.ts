@@ -13,13 +13,19 @@ const router = createRouter({
     {
       path: '/admin/gestion-produits',
       name: 'gestion-produits',
-      component: () => import('../views/admin/HomeView.vue'),
+      component: () => import('@/views/admin/HomeView.vue'),
     },
     {
       path: '/admin/gestion-produits/add',
       name: 'add-product',
-      component: () => import('../views/admin/RegisterProduct.vue'),
+      component: () => import('@/views/admin/RegisterProduct.vue'),
     },
+    {
+      path: '/admin/gestion-produits/edit/:id',
+      name: 'edit-product',
+      component: () => import('@/views/admin/UpdateProduct.vue'),
+      props: true
+    }
 
   ],
 })

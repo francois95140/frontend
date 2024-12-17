@@ -13,7 +13,6 @@ export interface Product {
 
 // Interface pour la réponse de pagination
 export interface PaginatedResponse {
-  products: any;
   data: Product[];
   current_page: number;
   last_page: number;
@@ -31,6 +30,16 @@ class ProductService {
       return response.data;
     } catch (error) {
       this.handleError(error);
+      throw error;
+    }
+  }
+
+  async getProductById(id: number | string): Promise<Product> {
+    try {
+      const response = await axios.get(`${this.baseUrl}/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération du produit', error);
       throw error;
     }
   }

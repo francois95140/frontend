@@ -5,6 +5,6 @@ import RegisterProduct  from '../../components/RegisterForm.vue';
 <template>
   <main>
     <h1 class="green">Add Product</h1>
-    <RegisterProduct />
+    <RegisterProduct mode="create" />
 </main>
 </template>

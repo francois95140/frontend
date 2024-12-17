@@ -2,33 +2,76 @@
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import InputText from 'primevue/inputtext';
+import InputNumber from 'primevue/inputnumber';
 import FloatLabel from 'primevue/floatlabel';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
-import { computed, ref } from 'vue';
-
-import axios from 'axios';
+import { computed, onMounted, ref } from 'vue';
+import type { Product } from '@/service/ProductService';
 import { productService } from '@/service/ProductService';
+
+
+const props = defineProps<{
+  product?: Product | null
+  mode?: 'create' | 'update'
+}>();
+
 
 const name = ref<string>('')
 const image = ref<string>('')
 const visible = ref(false);
 const description = ref<string>('')
-const price = ref<number>()
-const stock = ref<number>()
+const price = ref<number>(0)
+const stock = ref<number>(0)
+const productId = ref<number | null>(null);
+
+const resetForm = () => {
+  name.value = '';
+  description.value = '';
+  price.value = 0;
+  stock.value = 0;
+  image.value = '';
+  productId.value = null;
+};
 
 const isRegisterDisabled = computed (() => name.value.length > 0 && description.value.length > 0 && price.value > 0 && image.value.length > 0 && stock.value > 0)
 
 const HandleRegistrer = async () => {
   try
   {
-    await productService.createProduct({name: name.value, image: image.value, description: description.value, price: price.value, stock: stock.value})
+    const productData: Product = {
+      name: name.value,
+      description: description.value,
+      price: price.value,
+      stock: stock.value,
+      image: image.value
+    };
+
+
+    if (props.mode === 'update' && productId.value) {
+
+      await productService.updateProduct(productId.value, productData);
+    } else {
+
+      await productService.createProduct(productData);
+    }
     visible.value = true
+    resetForm();
   }catch (error) {
     console.log(error)
   }
 
 }
+onMounted(() => {
+  if (props.product && props.mode === 'update') {
+    name.value = props.product.name;
+    description.value = props.product.description;
+    price.value = props.product.price;
+    stock.value = props.product.stock;
+    image.value = props.product.image || '';
+    productId.value = props.product.id || null;
+  }
+});
 </script>
 
 <template>
@@ -56,7 +99,7 @@ const HandleRegistrer = async () => {
             <i class="pi pi-user"></i>
         </InputGroupAddon>
         <FloatLabel>
-        <InputText type="decimal" id="price" v-model="price" />
+        <InputNumber currency="EUR" mode="currency" type="decimal" id="price" v-model="price" fluid/>
         <label for="price">price</label>
       </FloatLabel>
     </InputGroup>
@@ -65,7 +108,7 @@ const HandleRegistrer = async () => {
             <i class="pi pi-user"></i>
         </InputGroupAddon>
         <FloatLabel>
-        <InputText type="number" id="stock" v-model="stock" />
+        <InputNumber type="number" id="stock" v-model="stock" />
         <label for="stock">Stock</label>
       </FloatLabel>
     </InputGroup>
@@ -80,11 +123,11 @@ const HandleRegistrer = async () => {
     </InputGroup>
     <Dialog v-model:visible="visible" modal header="Success" :style="{ width: '50vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <p class="m-0">
-    {{ name }} has been registered
+    {{ name||"Product" }} has {{ mode === 'create' ? 'been registered' : 'been updated' }}
     </p>
     </Dialog>
 
-    <Button label="Register" :disabled="!isRegisterDisabled" @click="HandleRegistrer"></Button>
+    <Button :label="mode === 'create' ? 'Créer' : 'Mettre à jour'" :disabled="!isRegisterDisabled" @click="HandleRegistrer"></Button>
 </div>
 
 </template>
